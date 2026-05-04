@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatARS } from "@/config/business";
 import type { Product } from "@/types/product";
 
-export const Route = createFileRoute("/productos")({
+export const Route = createFileRoute("/productos/")({
   head: () => ({
     meta: [
       { title: "Productos — DTF UV y DTF Textil | Luchozam.OK" },
