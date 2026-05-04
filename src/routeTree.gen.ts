@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProductosRouteImport } from './routes/productos'
 import { Route as MayoristasRouteImport } from './routes/mayoristas'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DtfUvRouteImport } from './routes/dtf-uv'
@@ -17,16 +16,12 @@ import { Route as DtfTextilRouteImport } from './routes/dtf-textil'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ComoEnviarArchivoRouteImport } from './routes/como-enviar-archivo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductosIndexRouteImport } from './routes/productos.index'
 import { Route as ProductosSlugRouteImport } from './routes/productos.$slug'
 import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
-const ProductosRoute = ProductosRouteImport.update({
-  id: '/productos',
-  path: '/productos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MayoristasRoute = MayoristasRouteImport.update({
   id: '/mayoristas',
   path: '/mayoristas',
@@ -62,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductosIndexRoute = ProductosIndexRouteImport.update({
+  id: '/productos/',
+  path: '/productos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductosSlugRoute = ProductosSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -91,11 +91,11 @@ export interface FileRoutesByFullPath {
   '/dtf-uv': typeof DtfUvRoute
   '/faq': typeof FaqRoute
   '/mayoristas': typeof MayoristasRoute
-  '/productos': typeof ProductosRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/productos/$slug': typeof ProductosSlugRoute
+  '/productos/': typeof ProductosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -105,11 +105,11 @@ export interface FileRoutesByTo {
   '/dtf-uv': typeof DtfUvRoute
   '/faq': typeof FaqRoute
   '/mayoristas': typeof MayoristasRoute
-  '/productos': typeof ProductosRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/productos/$slug': typeof ProductosSlugRoute
+  '/productos': typeof ProductosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -120,11 +120,11 @@ export interface FileRoutesById {
   '/dtf-uv': typeof DtfUvRoute
   '/faq': typeof FaqRoute
   '/mayoristas': typeof MayoristasRoute
-  '/productos': typeof ProductosRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
   '/productos/$slug': typeof ProductosSlugRoute
+  '/productos/': typeof ProductosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,11 +136,11 @@ export interface FileRouteTypes {
     | '/dtf-uv'
     | '/faq'
     | '/mayoristas'
-    | '/productos'
     | '/admin/login'
     | '/admin/pedidos'
     | '/pedido/$numero'
     | '/productos/$slug'
+    | '/productos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -150,11 +150,11 @@ export interface FileRouteTypes {
     | '/dtf-uv'
     | '/faq'
     | '/mayoristas'
-    | '/productos'
     | '/admin/login'
     | '/admin/pedidos'
     | '/pedido/$numero'
     | '/productos/$slug'
+    | '/productos'
   id:
     | '__root__'
     | '/'
@@ -164,11 +164,11 @@ export interface FileRouteTypes {
     | '/dtf-uv'
     | '/faq'
     | '/mayoristas'
-    | '/productos'
     | '/admin/login'
     | '/admin/pedidos'
     | '/pedido/$numero'
     | '/productos/$slug'
+    | '/productos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -179,21 +179,14 @@ export interface RootRouteChildren {
   DtfUvRoute: typeof DtfUvRoute
   FaqRoute: typeof FaqRoute
   MayoristasRoute: typeof MayoristasRoute
-  ProductosRoute: typeof ProductosRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
   PedidoNumeroRoute: typeof PedidoNumeroRoute
+  ProductosIndexRoute: typeof ProductosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/productos': {
-      id: '/productos'
-      path: '/productos'
-      fullPath: '/productos'
-      preLoaderRoute: typeof ProductosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/mayoristas': {
       id: '/mayoristas'
       path: '/mayoristas'
@@ -243,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/productos/': {
+      id: '/productos/'
+      path: '/productos'
+      fullPath: '/productos/'
+      preLoaderRoute: typeof ProductosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/productos/$slug': {
       id: '/productos/$slug'
       path: '/$slug'
@@ -274,18 +274,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ProductosRouteChildren {
-  ProductosSlugRoute: typeof ProductosSlugRoute
-}
-
-const ProductosRouteChildren: ProductosRouteChildren = {
-  ProductosSlugRoute: ProductosSlugRoute,
-}
-
-const ProductosRouteWithChildren = ProductosRoute._addFileChildren(
-  ProductosRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ComoEnviarArchivoRoute: ComoEnviarArchivoRoute,
@@ -294,11 +282,20 @@ const rootRouteChildren: RootRouteChildren = {
   DtfUvRoute: DtfUvRoute,
   FaqRoute: FaqRoute,
   MayoristasRoute: MayoristasRoute,
-  ProductosRoute: ProductosRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   AdminPedidosRoute: AdminPedidosRoute,
   PedidoNumeroRoute: PedidoNumeroRoute,
+  ProductosIndexRoute: ProductosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
