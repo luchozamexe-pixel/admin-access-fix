@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
-
+import { AuthProvider } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -29,14 +30,26 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Luchozam.OK — DTF UV y Textil en Argentina" },
+      {
+        name: "description",
+        content:
+          "Impresión DTF UV y DTF Textil para marcas, negocios y emprendedores. Subí tu archivo, pagá online y recibí tu pedido en cualquier punto de Argentina.",
+      },
+      { name: "author", content: "Luchozam.OK" },
+      { property: "og:title", content: "Luchozam.OK — DTF UV y Textil en Argentina" },
+      {
+        property: "og:description",
+        content: "Impresión DTF UV y DTF Textil con envíos a todo el país.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Luchozam.OK — DTF UV y Textil en Argentina" },
+      { name: "description", content: "Planchas DTF UV y DTF textil para marcas, negocios y emprendedores. Comprá online, subí tu archivo y recibí tu pedido en cualquier punto del país." },
+      { property: "og:description", content: "Planchas DTF UV y DTF textil para marcas, negocios y emprendedores. Comprá online, subí tu archivo y recibí tu pedido en cualquier punto del país." },
+      { name: "twitter:description", content: "Planchas DTF UV y DTF textil para marcas, negocios y emprendedores. Comprá online, subí tu archivo y recibí tu pedido en cualquier punto del país." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/upWMXEMTbeXrfB8cP4wvKh5aU8E2/social-images/social-1777573511897-ChatGPT_Image_30_abr_2026,_03_25_05_p.m..webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/upWMXEMTbeXrfB8cP4wvKh5aU8E2/social-images/social-1777573511897-ChatGPT_Image_30_abr_2026,_03_25_05_p.m..webp" },
     ],
     links: [
       {
@@ -52,7 +65,7 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es-AR">
       <head>
         <HeadContent />
       </head>
@@ -65,5 +78,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <AuthProvider>
+      <Outlet />
+      <Toaster richColors position="top-center" />
+    </AuthProvider>
+  );
 }
