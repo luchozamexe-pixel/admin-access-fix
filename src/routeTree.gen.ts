@@ -21,6 +21,7 @@ import { Route as ProductosSlugRouteImport } from './routes/productos.$slug'
 import { Route as PedidoNumeroRouteImport } from './routes/pedido.$numero'
 import { Route as AdminPedidosRouteImport } from './routes/admin.pedidos'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminBootstrapRouteImport } from './routes/admin.bootstrap'
 
 const ProductosRoute = ProductosRouteImport.update({
   id: '/productos',
@@ -82,6 +83,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminBootstrapRoute = AdminBootstrapRouteImport.update({
+  id: '/admin/bootstrap',
+  path: '/admin/bootstrap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/mayoristas': typeof MayoristasRoute
   '/productos': typeof ProductosRouteWithChildren
+  '/admin/bootstrap': typeof AdminBootstrapRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/mayoristas': typeof MayoristasRoute
   '/productos': typeof ProductosRouteWithChildren
+  '/admin/bootstrap': typeof AdminBootstrapRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/mayoristas': typeof MayoristasRoute
   '/productos': typeof ProductosRouteWithChildren
+  '/admin/bootstrap': typeof AdminBootstrapRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/pedidos': typeof AdminPedidosRoute
   '/pedido/$numero': typeof PedidoNumeroRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/mayoristas'
     | '/productos'
+    | '/admin/bootstrap'
     | '/admin/login'
     | '/admin/pedidos'
     | '/pedido/$numero'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/mayoristas'
     | '/productos'
+    | '/admin/bootstrap'
     | '/admin/login'
     | '/admin/pedidos'
     | '/pedido/$numero'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/mayoristas'
     | '/productos'
+    | '/admin/bootstrap'
     | '/admin/login'
     | '/admin/pedidos'
     | '/pedido/$numero'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   MayoristasRoute: typeof MayoristasRoute
   ProductosRoute: typeof ProductosRouteWithChildren
+  AdminBootstrapRoute: typeof AdminBootstrapRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
   PedidoNumeroRoute: typeof PedidoNumeroRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/bootstrap': {
+      id: '/admin/bootstrap'
+      path: '/admin/bootstrap'
+      fullPath: '/admin/bootstrap'
+      preLoaderRoute: typeof AdminBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -295,6 +315,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   MayoristasRoute: MayoristasRoute,
   ProductosRoute: ProductosRouteWithChildren,
+  AdminBootstrapRoute: AdminBootstrapRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminPedidosRoute: AdminPedidosRoute,
   PedidoNumeroRoute: PedidoNumeroRoute,
