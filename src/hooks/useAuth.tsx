@@ -64,12 +64,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null };
   };
 
+  const signUp: AuthCtx["signUp"] = async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/admin/login` },
+    });
+    if (error) return { error: error.message, needsConfirmation: false };
+    const needsConfirmation = !data.session;
+    return { error: null, needsConfirmation };
+  };
+
+  const resetPassword: AuthCtx["resetPassword"] = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin/login`,
+    });
+    return { error: error?.message ?? null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <Ctx.Provider value={{ user, session, loading, isAdmin, signIn, signOut }}>
+    <Ctx.Provider value={{ user, session, loading, isAdmin, signIn, signUp, resetPassword, signOut }}>
       {children}
     </Ctx.Provider>
   );
