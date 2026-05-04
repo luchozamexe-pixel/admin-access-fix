@@ -63,9 +63,9 @@ const ProductosIndexRoute = ProductosIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductosSlugRoute = ProductosSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ProductosRoute,
+  id: '/productos/$slug',
+  path: '/productos/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PedidoNumeroRoute = PedidoNumeroRouteImport.update({
   id: '/pedido/$numero',
@@ -182,6 +182,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminPedidosRoute: typeof AdminPedidosRoute
   PedidoNumeroRoute: typeof PedidoNumeroRoute
+  ProductosSlugRoute: typeof ProductosSlugRoute
   ProductosIndexRoute: typeof ProductosIndexRoute
 }
 
@@ -245,10 +246,10 @@ declare module '@tanstack/react-router' {
     }
     '/productos/$slug': {
       id: '/productos/$slug'
-      path: '/$slug'
+      path: '/productos/$slug'
       fullPath: '/productos/$slug'
       preLoaderRoute: typeof ProductosSlugRouteImport
-      parentRoute: typeof ProductosRoute
+      parentRoute: typeof rootRouteImport
     }
     '/pedido/$numero': {
       id: '/pedido/$numero'
@@ -285,17 +286,9 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminPedidosRoute: AdminPedidosRoute,
   PedidoNumeroRoute: PedidoNumeroRoute,
+  ProductosSlugRoute: ProductosSlugRoute,
   ProductosIndexRoute: ProductosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
