@@ -136,8 +136,8 @@ function ProductDetailPage() {
       toast.error(parsed.error.issues[0]?.message ?? "Revisá el formulario");
       return;
     }
-    if (form.has_ready_file && !file) {
-      toast.error("Subí tu archivo PNG o PDF, o marcá que necesitás ayuda con el archivo");
+    if (!file) {
+      toast.error("Subí tu archivo PNG, PDF o ZIP");
       return;
     }
     if (form.delivery_method === "envio_nacional" && !form.shipping_address) {
@@ -159,14 +159,8 @@ function ProductDetailPage() {
           items.push({ product_id: a.id, quantity: 1, is_addon: true });
         }
       }
-      // Si pidió revisión o armado y no estaban seleccionados como addon, sumarlos
-      const reviewAddon = addons.find((a) => a.slug === "revision-tecnica");
-      const assemblyAddon = addons.find((a) => a.slug === "armado-simple");
-      if (form.wants_review && reviewAddon && !selectedAddons[reviewAddon.id]) {
-        items.push({ product_id: reviewAddon.id, quantity: 1, is_addon: true });
-      }
-      if (form.wants_assembly && assemblyAddon && !selectedAddons[assemblyAddon.id]) {
-        items.push({ product_id: assemblyAddon.id, quantity: 1, is_addon: true });
+      if (selectedPrep) {
+        items.push({ product_id: selectedPrep.id, quantity: 1, is_addon: true });
       }
 
       const result = await createOrder({
