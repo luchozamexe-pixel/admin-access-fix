@@ -41,10 +41,8 @@ const formSchema = z.object({
   wants_review: z.boolean(),
   wants_assembly: z.boolean(),
   payment_method: z.enum(["mercadopago", "transferencia"]),
-  confirm_no_design: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
-  confirm_format: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
-  confirm_errors: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
-  confirm_production: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
+  confirm_payment_first: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
+  confirm_extras_paid: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
 });
 
 function ProductDetailPage() {
