@@ -5,13 +5,11 @@ import { business } from "@/config/business";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
-  { to: "/productos", label: "Productos" },
+  { to: "/productos", label: "Comprar" },
   { to: "/dtf-uv", label: "DTF UV" },
   { to: "/dtf-textil", label: "DTF Textil" },
-  { to: "/como-enviar-archivo", label: "Cómo enviar archivo" },
   { to: "/mayoristas", label: "Mayoristas" },
-  { to: "/faq", label: "FAQ" },
-  { to: "/contacto", label: "Contacto" },
+  { to: "/faq", label: "Archivo y FAQ" },
 ] as const;
 
 export function SiteHeader() {
