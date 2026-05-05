@@ -50,6 +50,7 @@ function ProductDetailPage() {
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [addons, setAddons] = useState<Product[]>([]);
+  const [prepPlans, setPrepPlans] = useState<Product[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
