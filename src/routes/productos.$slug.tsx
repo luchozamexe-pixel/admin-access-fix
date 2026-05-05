@@ -442,6 +442,12 @@ function ProductDetailPage() {
                   <span>{formatARS(a.price_ars)}</span>
                 </div>
               ))}
+              {selectedPrep && (
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>+ {selectedPrep.name}</span>
+                  <span>{formatARS(selectedPrep.price_ars)}</span>
+                </div>
+              )}
               <div className="border-t pt-3">
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
