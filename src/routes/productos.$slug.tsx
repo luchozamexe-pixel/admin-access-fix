@@ -82,14 +82,17 @@ function ProductDetailPage() {
     Promise.all([
       supabase.from("products").select("*").eq("slug", slug).maybeSingle(),
       supabase.from("products").select("*").eq("is_addon", true).eq("active", true).order("sort_order"),
-    ]).then(([prodRes, addonRes]) => {
+      supabase.from("products").select("*").eq("active", true).like("slug", "preparacion-%").order("sort_order"),
+    ]).then(([prodRes, addonRes, prepRes]) => {
       setProduct((prodRes.data ?? null) as Product | null);
       setAddons((addonRes.data ?? []) as Product[]);
+      setPrepPlans((prepRes.data ?? []) as Product[]);
       setLoading(false);
     });
   }, [slug]);
 
   const isUV = product?.category === "dtf_uv";
+  const selectedPrep = prepPlans.find((p) => p.id === prepPlan) ?? null;
 
   const total = useMemo(() => {
     if (!product) return 0;
@@ -97,8 +100,9 @@ function ProductDetailPage() {
     for (const a of addons) {
       if (selectedAddons[a.id]) t += a.price_ars;
     }
+    if (selectedPrep) t += selectedPrep.price_ars;
     return t;
-  }, [product, addons, selectedAddons, form.quantity]);
+  }, [product, addons, selectedAddons, form.quantity, selectedPrep]);
 
   if (loading) {
     return (
