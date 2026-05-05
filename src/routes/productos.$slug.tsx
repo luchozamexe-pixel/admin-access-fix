@@ -41,10 +41,8 @@ const formSchema = z.object({
   wants_review: z.boolean(),
   wants_assembly: z.boolean(),
   payment_method: z.enum(["mercadopago", "transferencia"]),
-  confirm_no_design: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
-  confirm_format: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
-  confirm_errors: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
-  confirm_production: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
+  confirm_payment_first: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
+  confirm_extras_paid: z.literal(true, { errorMap: () => ({ message: "Tenés que aceptar las condiciones" }) }),
 });
 
 function ProductDetailPage() {
@@ -52,6 +50,7 @@ function ProductDetailPage() {
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [addons, setAddons] = useState<Product[]>([]);
+  const [prepPlans, setPrepPlans] = useState<Product[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -74,24 +73,26 @@ function ProductDetailPage() {
     wants_review: false,
     wants_assembly: false,
     payment_method: "transferencia" as "mercadopago" | "transferencia",
-    confirm_no_design: false,
-    confirm_format: false,
-    confirm_errors: false,
-    confirm_production: false,
+    confirm_payment_first: false,
+    confirm_extras_paid: false,
   });
+  const [prepPlan, setPrepPlan] = useState<string>("none");
 
   useEffect(() => {
     Promise.all([
       supabase.from("products").select("*").eq("slug", slug).maybeSingle(),
       supabase.from("products").select("*").eq("is_addon", true).eq("active", true).order("sort_order"),
-    ]).then(([prodRes, addonRes]) => {
+      supabase.from("products").select("*").eq("active", true).like("slug", "preparacion-%").order("sort_order"),
+    ]).then(([prodRes, addonRes, prepRes]) => {
       setProduct((prodRes.data ?? null) as Product | null);
       setAddons((addonRes.data ?? []) as Product[]);
+      setPrepPlans((prepRes.data ?? []) as Product[]);
       setLoading(false);
     });
   }, [slug]);
 
   const isUV = product?.category === "dtf_uv";
+  const selectedPrep = prepPlans.find((p) => p.id === prepPlan) ?? null;
 
   const total = useMemo(() => {
     if (!product) return 0;
@@ -99,8 +100,9 @@ function ProductDetailPage() {
     for (const a of addons) {
       if (selectedAddons[a.id]) t += a.price_ars;
     }
+    if (selectedPrep) t += selectedPrep.price_ars;
     return t;
-  }, [product, addons, selectedAddons, form.quantity]);
+  }, [product, addons, selectedAddons, form.quantity, selectedPrep]);
 
   if (loading) {
     return (
@@ -134,8 +136,8 @@ function ProductDetailPage() {
       toast.error(parsed.error.issues[0]?.message ?? "Revisá el formulario");
       return;
     }
-    if (form.has_ready_file && !file) {
-      toast.error("Subí tu archivo PNG o PDF, o marcá que necesitás ayuda con el archivo");
+    if (!file) {
+      toast.error("Subí tu archivo PNG, PDF o ZIP");
       return;
     }
     if (form.delivery_method === "envio_nacional" && !form.shipping_address) {
@@ -157,14 +159,8 @@ function ProductDetailPage() {
           items.push({ product_id: a.id, quantity: 1, is_addon: true });
         }
       }
-      // Si pidió revisión o armado y no estaban seleccionados como addon, sumarlos
-      const reviewAddon = addons.find((a) => a.slug === "revision-tecnica");
-      const assemblyAddon = addons.find((a) => a.slug === "armado-simple");
-      if (form.wants_review && reviewAddon && !selectedAddons[reviewAddon.id]) {
-        items.push({ product_id: reviewAddon.id, quantity: 1, is_addon: true });
-      }
-      if (form.wants_assembly && assemblyAddon && !selectedAddons[assemblyAddon.id]) {
-        items.push({ product_id: assemblyAddon.id, quantity: 1, is_addon: true });
+      if (selectedPrep) {
+        items.push({ product_id: selectedPrep.id, quantity: 1, is_addon: true });
       }
 
       const result = await createOrder({
@@ -283,69 +279,57 @@ function ProductDetailPage() {
               <CardContent className="space-y-4 p-6">
                 <h2 className="text-lg font-semibold">Tu archivo</h2>
                 <p className="text-sm text-muted-foreground">
-                  PNG o PDF, en tamaño real, fondo transparente cuando corresponda. Máx 50 MB.{" "}
-                  <Link to="/como-enviar-archivo" className="text-primary underline">
+                  PNG, PDF o ZIP (si subís varios archivos), en tamaño real, fondo transparente cuando corresponda. Máx 100 MB.{" "}
+                  <Link to="/faq" className="text-primary underline">
                     Ver requisitos
                   </Link>
                 </p>
                 <label className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-border bg-accent/30 p-4 text-sm hover:bg-accent">
                   <FileUp className="h-5 w-5 text-primary" />
-                  <span className="flex-1">{file ? file.name : "Seleccionar archivo PNG o PDF"}</span>
+                  <span className="flex-1">{file ? file.name : "Seleccionar archivo PNG, PDF o ZIP"}</span>
                   <input
                     type="file"
-                    accept="image/png,application/pdf"
+                    accept="image/png,application/pdf,application/zip,.zip,.png,.pdf"
                     className="hidden"
                     onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   />
                 </label>
 
-                <div className="space-y-3 pt-2">
-                  <div className="rounded-md border border-border p-3">
-                    <p className="text-sm font-medium">¿Tenés tu archivo listo para imprimir?</p>
+                {prepPlans.length > 0 && (
+                  <div className="space-y-3 pt-2">
+                    <p className="text-sm font-medium">¿Tu archivo necesita preparación?</p>
+                    <p className="text-xs text-muted-foreground">
+                      Si está 100% listo, dejá "No, está listo". Si necesita ajustes, sumá un plan.
+                    </p>
                     <RadioGroup
-                      value={form.has_ready_file ? "si" : "no"}
-                      onValueChange={(v) => setForm({ ...form, has_ready_file: v === "si" })}
-                      className="mt-2 grid gap-2 sm:grid-cols-2"
+                      value={prepPlan}
+                      onValueChange={(v) => setPrepPlan(v)}
+                      className="grid gap-2 sm:grid-cols-2"
                     >
-                      <DeliveryOption value="si" title="Sí, tengo el archivo listo" desc="Lo subo ahora en PNG o PDF." />
-                      <DeliveryOption value="no" title="No, necesito ayuda" desc="Sumá revisión técnica o armado simple." />
+                      <DeliveryOption value="none" title="No, está listo" desc="Lo subo en PNG, PDF o ZIP." />
+                      {prepPlans.map((p) => (
+                        <DeliveryOption
+                          key={p.id}
+                          value={p.id}
+                          title={`${p.name.replace("Preparación de archivo · ", "")} · ${formatARS(p.price_ars)}`}
+                          desc={p.short_description}
+                        />
+                      ))}
                     </RadioGroup>
-                    {!form.has_ready_file && (
-                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        <CheckLine
-                          checked={form.wants_review}
-                          onChange={(v) => setForm({ ...form, wants_review: v })}
-                          label="Quiero revisión técnica (+ $5.000)"
-                        />
-                        <CheckLine
-                          checked={form.wants_assembly}
-                          onChange={(v) => setForm({ ...form, wants_assembly: v })}
-                          label="Quiero armado simple (+ $15.000)"
-                        />
-                      </div>
-                    )}
                   </div>
+                )}
 
+                <div className="space-y-3 pt-2">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Condiciones del pedido</p>
                   <CheckLine
-                    checked={form.confirm_no_design}
-                    onChange={(v) => setForm({ ...form, confirm_no_design: v })}
-                    label="Entiendo que el precio no incluye diseño, redibujo, vectorización ni armado complejo."
+                    checked={form.confirm_payment_first}
+                    onChange={(v) => setForm({ ...form, confirm_payment_first: v })}
+                    label="Entiendo que el pedido inicia cuando el pago esté confirmado y el archivo esté aprobado o preparado."
                   />
                   <CheckLine
-                    checked={form.confirm_format}
-                    onChange={(v) => setForm({ ...form, confirm_format: v })}
-                    label="Mi archivo está listo para imprimir en PNG o PDF, con buena calidad y tamaño real."
-                  />
-                  <CheckLine
-                    checked={form.confirm_errors}
-                    onChange={(v) => setForm({ ...form, confirm_errors: v })}
-                    label="Entiendo que si el archivo está mal, puede requerir corrección paga antes de producir."
-                  />
-                  <CheckLine
-                    checked={form.confirm_production}
-                    onChange={(v) => setForm({ ...form, confirm_production: v })}
-                    label="Acepto que el pedido pasa a producción cuando el pago esté confirmado y el archivo aprobado."
+                    checked={form.confirm_extras_paid}
+                    onChange={(v) => setForm({ ...form, confirm_extras_paid: v })}
+                    label="Entiendo que los cambios, rediseños o modificaciones no incluidas se cobran aparte."
                   />
                 </div>
               </CardContent>
@@ -458,6 +442,12 @@ function ProductDetailPage() {
                   <span>{formatARS(a.price_ars)}</span>
                 </div>
               ))}
+              {selectedPrep && (
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>+ {selectedPrep.name}</span>
+                  <span>{formatARS(selectedPrep.price_ars)}</span>
+                </div>
+              )}
               <div className="border-t pt-3">
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
