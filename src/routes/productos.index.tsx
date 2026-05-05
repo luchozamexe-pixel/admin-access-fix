@@ -44,8 +44,12 @@ function ProductsPage() {
       });
   }, []);
 
-  const main = products.filter((p) => !p.is_addon && !p.is_quote);
-  const addons = products.filter((p) => p.is_addon);
+  const dtfUv = products.filter((p) => p.category === "dtf_uv" && !p.is_addon && !p.is_quote);
+  const dtfTextil = products.filter((p) => p.category === "dtf_textil" && !p.is_addon && !p.is_quote);
+  const preparacion = products.filter(
+    (p) => p.category === "servicio_adicional" && !p.is_addon && p.slug.startsWith("preparacion-"),
+  );
+  const otherAddons = products.filter((p) => p.is_addon);
   const quotes = products.filter((p) => p.is_quote);
 
   return (
@@ -54,48 +58,67 @@ function ProductsPage() {
         <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
           <h1 className="text-3xl font-bold sm:text-4xl">Productos y servicios</h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Elegí el tipo de impresión, sumá servicios opcionales y completá tu pedido en minutos.
+            Elegí DTF UV, DTF Textil o sumá un plan de preparación de archivo.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
-        <h2 className="mb-6 text-xl font-semibold">Impresión DTF</h2>
-        {loading && <p className="text-muted-foreground">Cargando productos…</p>}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {main.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      </section>
+      {loading && (
+        <p className="mx-auto max-w-7xl px-4 py-8 text-muted-foreground lg:px-8">
+          Cargando productos…
+        </p>
+      )}
 
-      {addons.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-12 lg:px-8">
-          <h2 className="mb-6 text-xl font-semibold">Servicios adicionales</h2>
+      {dtfUv.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-12 lg:px-8">
+          <h2 className="mb-2 text-xl font-semibold">DTF UV</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Stickers premium para packaging, frascos, termos, vasos, objetos rígidos y merchandising.
+          </p>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {addons.map((p) => (
+            {dtfUv.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
       )}
 
-      {quotes.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-16 lg:px-8">
-          <h2 className="mb-6 text-xl font-semibold">¿Necesitás diseño?</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            {quotes.map((p) => (
-              <Card key={p.id}>
-                <CardContent className="p-6">
-                  <Badge variant="secondary" className="mb-2">A cotizar</Badge>
-                  <h3 className="text-lg font-semibold">{p.name}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{p.short_description}</p>
-                  <p className="mt-3 text-sm">Desde <strong>{formatARS(p.price_ars)}</strong></p>
-                  <Button asChild className="mt-4" variant="outline">
-                    <Link to="/contacto">{p.cta_label}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+      {dtfTextil.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-12 lg:px-8">
+          <h2 className="mb-2 text-xl font-semibold">DTF Textil</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Para remeras, buzos, uniformes, ropa, talleres textiles y marcas.
+          </p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {dtfTextil.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {preparacion.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold">Preparación de archivo</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Si tu archivo no está 100% listo, sumá un plan. El diseño completo o branding avanzado se cotiza aparte.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {preparacion.map((p) => (
+              <ProductCard key={p.id} product={p} highlight={p.is_featured} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {otherAddons.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-12 lg:px-8">
+          <h2 className="mb-6 text-xl font-semibold">Servicios adicionales</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {otherAddons.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
