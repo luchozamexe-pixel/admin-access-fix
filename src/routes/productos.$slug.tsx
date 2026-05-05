@@ -72,11 +72,10 @@ function ProductDetailPage() {
     wants_review: false,
     wants_assembly: false,
     payment_method: "transferencia" as "mercadopago" | "transferencia",
-    confirm_no_design: false,
-    confirm_format: false,
-    confirm_errors: false,
-    confirm_production: false,
+    confirm_payment_first: false,
+    confirm_extras_paid: false,
   });
+  const [prepPlan, setPrepPlan] = useState<string>("none");
 
   useEffect(() => {
     Promise.all([
