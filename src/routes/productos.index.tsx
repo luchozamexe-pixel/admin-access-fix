@@ -127,9 +127,14 @@ function ProductsPage() {
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, highlight }: { product: Product; highlight?: boolean }) {
   return (
-    <Card className="flex flex-col">
+    <Card className={`relative flex flex-col ${highlight ? "border-primary ring-2 ring-primary/30" : ""}`}>
+      {highlight && (
+        <div className="absolute -top-3 left-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
+          Más elegido
+        </div>
+      )}
       <CardContent className="flex flex-1 flex-col p-6">
         <div className="flex items-start justify-between gap-2">
           <Badge variant="outline" className="text-xs">
